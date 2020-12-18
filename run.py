@@ -64,6 +64,9 @@ def selectModel(modelName):
     return model
 
 
+
+
+
 def main():
     # args = parseArgs()
     # lr = args.learning_rate
@@ -83,7 +86,7 @@ def main():
     opt = 'SGD_l12'
     theta = 1000
     lambda_ = 0.00014
-    max_epoch = 200
+    max_epoch = 300
     a = 2
     '''
     13是detach版本与　14是requires_grad为False的版本
@@ -109,16 +112,12 @@ def main():
         'Np':100,
         'Np2':100
     })
-    print(os.getcwd())
+    if opt !='rda':
+        scheduler = StepLR(optimize, step_size = 60, gamma = 0.1)
     os.makedirs('./results',exist_ok=True)
     setting = '{}_{}_{}_{}_lam_{}'.format(opt,modelName,dataset_name,theta,lambda_)
     csvname = os.path.join('./results',setting+'.csv')
     print('Result are saving to the CSV file {}'.format(csvname))
-
-    csvfile = open(csvname,'w',newline='')
-    fieldnames = ['epoch','F_value','f_value','penaltyvalue','density','train_time','accuracy']
-    writer = csv.DictWriter(csvfile,fieldnames=fieldnames,delimiter = ',')
-    writer.writeheader()
     
 
     logger = get_logger('log_{}'.format(opt))
@@ -131,17 +130,33 @@ def main():
 
 
     alg_start_time = time.time()
-    epoch = 0
+    epoch = 1
     count = 0
+    if os.path.exists(os.path.join('./checkpoints',setting+'.pt')):
+        checkpoint = torch.load(os.path.join('./checkpoints',setting+'.pt'),map_location = torch.device('cpu'))
+        epoch += checkpoint['epoch']
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimize.load_state_dict(checkpoint['optimizer_state_dict'])
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        csvfile = open(csvname,'a',newline='')
+        fieldnames = ['epoch','F_value','f_value','penaltyvalue','density','train_time','accuracy']
+        writer = csv.DictWriter(csvfile,fieldnames=fieldnames,delimiter = ',')
+        print('using the previous model')
+    else:
+        csvfile = open(csvname,'w',newline='')
+        fieldnames = ['epoch','F_value','f_value','penaltyvalue','density','train_time','accuracy']
+        writer = csv.DictWriter(csvfile,fieldnames=fieldnames,delimiter = ',')
+        writer.writeheader()
+    
+
+
+
     while True:
         epoch_start_time = time.time()
         if epoch >= max_epoch:
             break
         for _,(X,y) in enumerate(trainloader):
             # iterate every minibatch
-            # X = Variable(X)
-            # with torch.autograd.profiler.profile(use_cuda=True) as prof:
-            # print(X.shape)
             X = X.to(device)
             y = y.to(device)
             y_pred = model.forward(X)
@@ -151,9 +166,9 @@ def main():
             optimize.step()
         logger.info(model.parameters())
 
+        if opt != 'rda':
+            scheduler.step()
 
-
-        epoch += 1
         train_time = time.time() - epoch_start_time
 
         F,f,penaltyvalue = compute_value(
@@ -167,7 +182,7 @@ def main():
         print('density:{}'.format(density))
         print("F:{},\n f:{},\n penaltyvalue:{},\n accuracy:{}".format(F,f,penaltyvalue,accuracy))
         writer.writerow({
-            'epoch':optimize.step_count,
+            'epoch':epoch,
             'F_value':F,
             'f_value':f,
             'density':density,
@@ -176,11 +191,20 @@ def main():
             'accuracy':accuracy,
         })
         csvfile.flush()
+        torch.save({
+            'epoch':epoch,
+            'accuracy':accuracy,
+            'lr':scheduler.get_last_lr()[0],
+            'model_state_dict':model.state_dict(),
+            'optimizer_state_dict':optimize.state_dict(),
+            'scheduler_state_dict':scheduler.state_dict(),
+        },os.path.join('checkpoints',setting+'.pt'))
+        epoch += 1
+ 
 
     alg_time = time.time()-alg_start_time
     writer.writerow({'train_time':alg_time/epoch})
     os.makedirs('checkpoints',exist_ok=True)
-    torch.save(model, os.path.join('checkpoints',setting+'.pt'))
     csvfile.close()
 
 if __name__ == '__main__':

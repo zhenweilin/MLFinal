@@ -6,15 +6,12 @@ import sys
 import os
 import json,codecs
 import numpy as np
-# os.chdir(os.path.join(sys.path[0],'DataProcess'))
-# os.chdir(sys.path[0])
-#外面调用要有这句，可能是因为最开始的时候文件放在外面，是从外面移动进来的，执行目录还在外面
 from mean_std import mean_std
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
 import torch.nn as nn
 import torch.nn.functional as F
-# sys.path.append(os.path.join(sys.path[0],'DataProcess'))
+
 
 DATA_DIR = os.path.join(sys.path[0],'DataProcess/datasets')
 # image_path = '/home/linzhenwei/MLFinal/DataProcess/datasets/train/NORMAL/IM-0115-0001.jpeg'
