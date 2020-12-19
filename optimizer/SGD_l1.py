@@ -47,4 +47,5 @@ class SGD_l1(Optimizer):
         # return d
         y = p.add(grad,alpha = -lr)
         m = Softshrink(lambd = lr*lambda_)
+        #可能这个地方要用lr*lambda_
         return m(y).add(p,alpha = -1)

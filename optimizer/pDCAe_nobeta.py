@@ -1,7 +1,7 @@
 import torch 
 from torch.optim.optimizer import Optimizer, required
 import math
-
+from torch.nn import Softshrink
 
 class pDCAe_nobeta(Optimizer):
     def __init__(self, params, lr = 1e-4, theta=10,lambda_ = 10,**kwargs):
@@ -58,13 +58,16 @@ class pDCAe_nobeta(Optimizer):
         return xi
 
     def calculatex_d(self,lr,p,grad,xi,theta,lambda_):
-        trial_x = torch.zeros_like(p)
-        pos_shrink = p - lr*(grad - xi + lambda_*theta)
-        neg_shrink = p - lr*(grad - xi - lambda_*theta)
-        pos_shrink_idx = (pos_shrink > 0)
-        neg_shrink_idx = (neg_shrink < 0)
-        trial_x[pos_shrink_idx] = pos_shrink[pos_shrink_idx]
-        trial_x[neg_shrink_idx] = neg_shrink[neg_shrink_idx]
-        trial_x = trial_x - p
+        # trial_x = torch.zeros_like(p)
+        # pos_shrink = p - lr*(grad - xi + lambda_*theta)
+        # neg_shrink = p - lr*(grad - xi - lambda_*theta)
+        # pos_shrink_idx = (pos_shrink > 0)
+        # neg_shrink_idx = (neg_shrink < 0)
+        # trial_x[pos_shrink_idx] = pos_shrink[pos_shrink_idx]
+        # trial_x[neg_shrink_idx] = neg_shrink[neg_shrink_idx]
+        # trial_x = trial_x - p
+        y = p.add(grad.add(xi,alpha = -1),alpha = -lr)
+        m = Softshrink(lambda_*theta*lr)
+        trial_x = m(y).add(p,alpha = -1)
         return trial_x
 

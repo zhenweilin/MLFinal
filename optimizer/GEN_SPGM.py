@@ -4,7 +4,7 @@ import math
 
 
 class GEN_SPGM_1(optimizer):
-    def __init__(self,params,lr = 1e-4, lambda_ = 0.5,delta = 1e-10,rho_0 = 0.9,mu = 0.1,penalty = 'l_1',**kwargs):
+    def __init__(self,params,lr = 1e-4, lambda_ = 0.5,delta = 1e-10,rho_0 = 0.9,mu = 0.1,penalty = 'l_1'，**kwargs):
         if not 0.0 <= lr:
             raise ValueError('Invalid learning rate lr : {}'.format(lr))
         if not 0.0 <= lambda_:

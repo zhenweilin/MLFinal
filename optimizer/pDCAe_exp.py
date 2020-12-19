@@ -2,10 +2,10 @@ import torch
 from torch.optim.optimizer import Optimizer, required
 import math
 from torch.nn import Softshrink
-#这个地方softshrink里面应该是用Ｃ写的
 
-class pDCAe(Optimizer):
-    def __init__(self, params, lr = 1e-4,theta=10,lambda_ = 0.000001,epochSize = 200,**kwargs):
+
+class pDCAe_exp(Optimizer):
+    def __init__(self, params, lr = 0.1,theta=10,lambda_ = 0.0001,epochSize = 200,**kwargs):
         if not 0.0 <= lr:
             raise ValueError('Invalid learning rate : {}'.format(lr))
         if not 0.0 <= theta:
@@ -15,7 +15,7 @@ class pDCAe(Optimizer):
         self.epochSize = epochSize
         self.iter = 0
         defaults = dict(lr = lr,theta = theta,lambda_ = lambda_)
-        super(pDCAe,self).__init__(params,defaults)
+        super(pDCAe_exp,self).__init__(params,defaults)
 
     @torch.no_grad()
     def step(self,closure=None):
@@ -39,7 +39,9 @@ class pDCAe(Optimizer):
                 if len(state) == 0:
                     state['k_'] = state['k'] = 1
                     state['x_'] = torch.clone(p).detach()
-
+                    state['count'] = 0
+                    
+                state['count'] += 1
                 k_,k = state['k_'],state['k']
                 # calculate beta
                 beta = (k_-1)/k
@@ -58,9 +60,11 @@ class pDCAe(Optimizer):
                 x = torch.clone(p)
                 p = x.mul(1+beta).add(state['x_'],alpha = -beta)
                 state['x_'] = torch.clone(x).detach()
-                if self.iter >= self.epochSize:
-                    self.iter = 0
+                if self.iter >= self.epochSize-1:
                     p = state['x_']
+                    if state['count'] >= len(group['params'])-1:
+                        self.iter = 0
+                        state['count']=0
 
         self.iter += 1
         
@@ -74,14 +78,17 @@ class pDCAe(Optimizer):
         return xi
 
     def calculatex_d(self,lr,p,grad,xi,theta,lambda_):
-        trial_x = torch.zeros_like(p)
-        pos_shrink = p - lr*(grad - xi + lambda_*theta)
-        neg_shrink = p - lr*(grad - xi - lambda_*theta)
-        pos_shrink_idx = (pos_shrink > 0)
-        neg_shrink_idx = (neg_shrink < 0)
-        trial_x[pos_shrink_idx] = pos_shrink[pos_shrink_idx]
-        trial_x[neg_shrink_idx] = neg_shrink[neg_shrink_idx]
-        trial_x = trial_x - p
+        # trial_x = torch.zeros_like(p)
+        # pos_shrink = p - lr*(grad - xi + lambda_*theta)
+        # neg_shrink = p - lr*(grad - xi - lambda_*theta)
+        # pos_shrink_idx = (pos_shrink > 0)
+        # neg_shrink_idx = (neg_shrink < 0)
+        y = p.add(grad.add(xi,alpha = -1),alpha = -lr)
+        # trial_x[pos_shrink_idx] = pos_shrink[pos_shrink_idx]
+        # trial_x[neg_shrink_idx] = neg_shrink[neg_shrink_idx]
+        # trial_x = trial_x - p
+        m = Softshrink(lambda_*theta*lr)
+        trial_x = m(y).add(p,alpha = -1)
         return trial_x
 
 
