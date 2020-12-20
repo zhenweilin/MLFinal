@@ -59,18 +59,22 @@ def compute_value(trainloader,model,weights,criterion,theta,lambda_,penalty = 'S
         one = torch.ones_like(w)
         if penalty == 'pDCAe_nobeta':
             penalty_w = torch.ones_like(w).add(torch.exp(torch.abs(w).mul(-theta)),alpha = -1)
-        if penalty == 'pDCAe_exp':
+        elif penalty == 'pDCAe_exp':
             penalty_w = torch.ones_like(w).add(torch.exp(torch.abs(w).mul(-theta)),alpha = -1)
-        if penalty == 'SGD_l1':
+        elif penalty == 'SGD_l1':
             penalty_w = w
-        if penalty == 'SGD_capped':
+        elif penalty == 'SGD_capped':
             penalty_w = calculate_capped(w = w,theta = theta)
-        if penalty == 'SGD_SCAD':
+        elif penalty == 'SGD_SCAD':
             penalty_w = calculate_SCAD(theta = theta,a = a,w = w)
-        if penalty == 'SGD_mcp':
+        elif penalty == 'SGD_mcp':
             penalty_w = calculate_mcp(theta=theta,a = a, w = w)
+        elif penalty == 'SGD_l12':
+            penalty_w = w
+        elif penalty == 'SGD_l12_freeze':
+            penalty_w = w
 
-        penalty_list.append(torch.norm(w,1).item())
+        penalty_list.append(torch.norm(penalty_w,1).item())
 
     penaltyvalue = sum(penalty_list)
     F = f + penaltyvalue*lambda_

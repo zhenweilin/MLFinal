@@ -26,30 +26,42 @@ from utils import check_accuracy, compute_F, compute_value
 def parseArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--learning_rate','-lr',default=0.01,type = float
+        '--learning_rate','-lr',default=0.1,type = float
     )
     parser.add_argument(
         '--model',choices=['mobilenetv1','resnet18'],type = str, required = True
     )
-    paraser.add_argument(
-        '--dataset_name',choices = ['cifar10','fashion_mnist'],type = str,required = True
-    )
+    # parser.add_argument(
+    #     '--dataset_name',choices = ['cifar10','fashion_mnist'],type = str,required = True
+    # )
     parser.add_argument(
-        '--optimizer',choices=['pDCAe_exp']
+        '--optimizer',choices=['pDCAe_exp','SGD_l1','SGD_capped','SGD_SCAD','SGD_mcp','pDCAe_nobeta','SGD_l12','SGD_l12_freeze']
     )
     parser.add_argument(
         '--batch_size',default=128,type = int
     )
-    parser.add_argumetn(
-        '--theta',default = 10,help = 'the greater theta, the better fit to norm zero'
+    parser.add_argument(
+        '--theta',default = 10,type = int,help = 'the greater theta, the better fit to norm zero'
     )
+    # 这个地方theta 的取值为什么要取10？
     parser.add_argument(
         '--max_epoch',default=200,type = int
     )
     parser.add_argument(
-        '--a',default=2,type = float,help = 'This parameter is using in SCAD penalty'
+        '--lambda_',default = 0.0001,type = float
     )
-
+    parser.add_argument(
+        '--a',default = 2,type = float,help = 'This parameter is using in SCAD peanlty'
+    )
+    parser.add_argument(
+        '--edition',default = 1.0,type = float, help = 'This is code edition'
+    )
+    parser.add_argument(
+        '--Np',default = 100, type = int, help = 'This is how many epoches in first stage'
+    )
+    parser.add_argument(
+        '--Np2',default = 100, type = int, help  = 'This is how many epoches in second stage'
+    )
     return parser.parse_args()
 
 def selectModel(modelName):
@@ -68,26 +80,33 @@ def selectModel(modelName):
 
 
 def main():
-    # args = parseArgs()
-    # lr = args.learning_rate
-    # dataset_name = args.dataset_name
-    # batch_size = args.batch_size
-    # modelName = args.model
-    # opt = args.optimizer
-    # theta = args.theta
-    # max_epoch = args.max_epoch
-    # a = args.a
+    args = parseArgs()
+    lr = args.learning_rate
+    batch_size = args.batch_size
+    modelName = args.model
+    opt = args.optimizer
+    theta = args.theta
+    max_epoch = args.max_epoch
+    lambda_ = args.lambda_
+    a = args.a
+    edition = args.edition
+    Np = args.Np
+    Np2 = args.Np2
+    dataset_name = 'chestX'
+
+
+
 
     #Manually set parameters for testing
-    lr = 0.1
-    dataset_name = 'cifar10'
-    batch_size = 128
-    modelName = 'mobilenetv1'
-    opt = 'SGD_l12'
-    theta = 1000
-    lambda_ = 0.00014
-    max_epoch = 300
-    a = 2
+    # lr = 0.1
+    # dataset_name = 'chestX'
+    # batch_size = 128
+    # modelName = 'mobilenetv1'
+    # opt = 'SGD_l12'
+    # theta = 10
+    # lambda_ = 0.00014
+    # max_epoch = 300
+    # a = 2
     '''
     13是detach版本与　14是requires_grad为False的版本
     0.000001 是　detach 版本
@@ -114,13 +133,36 @@ def main():
     })
     if opt !='rda':
         scheduler = StepLR(optimize, step_size = 60, gamma = 0.1)
-    os.makedirs('./results',exist_ok=True)
-    setting = '{}_{}_{}_{}_lam_{}'.format(opt,modelName,dataset_name,theta,lambda_)
-    csvname = os.path.join('./results',setting+'.csv')
+    os.makedirs('./results_{}'.format(opt),exist_ok=True)
+    if a == 2:
+        setting = '{}_{}_{}_{}_edi_{}_theta_{}_lam_{:.1e}'.format(opt,modelName,dataset_name,theta,edition,theta,lambda_)
+    else:
+        setting = '{}_{}_{}_{}_edi_{}_theta_{}_lam_{:.1e}_a{}'.format(opt,modelName,dataset_name,theta,edition,theta,lambda_,a)
+    if opt == 'SGD_l12_freeze':
+        setting = '{}_{}_{}_{}_edi_{}_theta_{}_lam_{:.1e}_a{}_Np_{}'.format(opt,modelName,dataset_name,theta,edition,theta,lambda_,a,Np)
+    csvname = os.path.join('./results_{}'.format(opt),setting+'.csv')
     print('Result are saving to the CSV file {}'.format(csvname))
     
 
-    logger = get_logger('log_{}'.format(opt))
+    alg_start_time = time.time()
+    epoch = 1
+    if os.path.exists(os.path.join('./checkpoints',setting+'.pt')):
+        checkpoint = torch.load(os.path.join('./checkpoints',setting+'.pt'),map_location = torch.device('cpu'))
+        epoch += checkpoint['epoch']
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimize.load_state_dict(checkpoint['optimizer_state_dict'])
+        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+        csvfile = open(csvname,'a',newline='')
+        fieldnames = ['epoch','F_value','f_value','penaltyvalue','density','train_time','accuracy','stage']
+        writer = csv.DictWriter(csvfile,fieldnames=fieldnames,delimiter = ',')
+        print('using the previous model')
+    else:
+        csvfile = open(csvname,'w',newline='')
+        fieldnames = ['epoch','F_value','f_value','penaltyvalue','density','train_time','accuracy','stage']
+        writer = csv.DictWriter(csvfile,fieldnames=fieldnames,delimiter = ',')
+        writer.writeheader()
+
+    logger = get_logger('log_{}_{}'.format(modelName,opt))
     # flops_input = torch.randn(1,3,32,32).cuda()# the image size
     # flops, params = profile(model, inputs = (flops_input, ))
     # flops, params = clever_format([flops,params],'%.3f')
@@ -129,31 +171,12 @@ def main():
     # )
 
 
-    alg_start_time = time.time()
-    epoch = 1
-    count = 0
-    if os.path.exists(os.path.join('./checkpoints',setting+'.pt')):
-        checkpoint = torch.load(os.path.join('./checkpoints',setting+'.pt'),map_location = torch.device('cpu'))
-        epoch += checkpoint['epoch']
-        model.load_state_dict(checkpoint['model_state_dict'])
-        optimize.load_state_dict(checkpoint['optimizer_state_dict'])
-        scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-        csvfile = open(csvname,'a',newline='')
-        fieldnames = ['epoch','F_value','f_value','penaltyvalue','density','train_time','accuracy']
-        writer = csv.DictWriter(csvfile,fieldnames=fieldnames,delimiter = ',')
-        print('using the previous model')
-    else:
-        csvfile = open(csvname,'w',newline='')
-        fieldnames = ['epoch','F_value','f_value','penaltyvalue','density','train_time','accuracy']
-        writer = csv.DictWriter(csvfile,fieldnames=fieldnames,delimiter = ',')
-        writer.writeheader()
-    
 
 
 
     while True:
         epoch_start_time = time.time()
-        if epoch >= max_epoch:
+        if epoch > max_epoch:
             break
         for _,(X,y) in enumerate(trainloader):
             # iterate every minibatch
@@ -189,6 +212,7 @@ def main():
             'train_time':train_time,
             'penaltyvalue':penaltyvalue,
             'accuracy':accuracy,
+            'stage':optimize.stage
         })
         csvfile.flush()
         torch.save({
