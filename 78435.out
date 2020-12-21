@@ -1,0 +1,94 @@
+Sender: LSF System <lsfadmin@volta04>
+Subject: Job 78435: <MLFinal> in cluster <cjdx.cluster> Exited
+
+Job <MLFinal> was submitted from host <alpha02> by user <linzhenwei> in cluster <cjdx.cluster> at Mon Dec 21 22:31:35 2020
+Job was executed on host(s) <volta04>, in queue <volta>, as user <linzhenwei> in cluster <cjdx.cluster> at Mon Dec 21 22:21:31 2020
+</nfsshare/home/linzhenwei> was used as the home directory.
+</nfsshare/home/linzhenwei/MLFinal> was used as the working directory.
+Started at Mon Dec 21 22:21:31 2020
+Terminated at Mon Dec 21 22:31:15 2020
+Results reported at Mon Dec 21 22:31:15 2020
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#/bin/bash
+#BSUB -J MLFinal
+#BSUB -e %J.err
+#BSUB -o %J.out
+#BSUB -n 1 
+#BSUB -q volta
+#BSUB -gpu "num=1:mode=exclusive_process"
+source activate tc
+
+python run.py --model mobilenetv1 --optimizer SGD_l1 --lambda_ 0.0001 --max_epoch 200 --batch_size 128 --learning_rate 0.1 --edition 2.0 --Np 1 --Np2 1
+python run.py --model mobilenetv1 --optimizer SGD_l1 --lambda_ 0.0002 --max_epoch 200 --batch_size 128 --learning_rate 0.1 --edition 2.1 --Np 1 --Np2 1
+python run.py --model mobilenetv1 --optimizer SGD_l1 --lambda_ 0.0003 --max_epoch 200 --batch_size 128 --learning_rate 0.1 --edition 2.2 --Np 1 --Np2 1
+python run.py --model mobilenetv1 --optimizer SGD_l1 --lambda_ 0.0004 --max_epoch 200 --batch_size 128 --learning_rate 0.1 --edition 2.3 --Np 1 --Np2 1
+python run.py --model mobilenetv1 --optimizer SGD_l1 --lambda_ 0.0005 --max_epoch 200 --batch_size 128 --learning_rate 0.1 --edition 2.4 --Np 1 --Np2 1
+python run.py --model mobilenetv1 --optimizer SGD_l1 --lambda_ 0.0006 --max_epoch 200 --batch_size 128 --learning_rate 0.1 --edition 2.5 --Np 1 --Np2 1
+python run.py --model mobilenetv1 --optimizer SGD_l1 --lambda_ 0.0007 --max_epoch 200 --batch_size 128 --learning_rate 0.1 --edition 2.6 --Np 1 --Np2 1
+python run.py --model mobilenetv1 --optimizer SGD_l1 --lambda_ 0.0008 --max_epoch 200 --batch_size 128 --learning_rate 0.1 --edition 2.7 --Np 1 --Np2 1
+python run.py --model mobilenetv1 --optimizer SGD_l1 --lambda_ 0.0009 --max_epoch 200 --batch_size 128 --learning_rate 0.1 --edition 2.8 --Np 1 --Np2 1
+python run.py --model mobilenetv1 --optimizer SGD_l1 --lambda_ 0.00025 --max_epoch 200 --batch_size 128 --learning_rate 0.1 --edition 2.9 --Np 1 --Np2 1
+
+
+------------------------------------------------------------
+
+TERM_OWNER: job killed by owner.
+Exited with exit code 143.
+
+Resource usage summary:
+
+    CPU time :                                   2123.00 sec.
+    Max Memory :                                 6154 MB
+    Average Memory :                             5090.54 MB
+    Total Requested Memory :                     -
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              8
+    Max Threads :                                24
+    Run time :                                   585 sec.
+    Turnaround time :                            0 sec.
+
+The output (if any) follows:
+
+modelName: MobileNetV1
+Result are saving to the CSV file ./results_SGD_l1/SGD_l1_mobilenetv1_chestX_10_edi_2.0_theta_10_lam_1.0e-04.csv
+modelName: MobileNetV1
+Result are saving to the CSV file ./results_SGD_l1/SGD_l1_mobilenetv1_chestX_10_edi_2.1_theta_10_lam_2.0e-04.csv
+modelName: MobileNetV1
+Result are saving to the CSV file ./results_SGD_l1/SGD_l1_mobilenetv1_chestX_10_edi_2.2_theta_10_lam_3.0e-04.csv
+epoch:1 time:46.39044523239136
+density:0.9906119314884847
+F:25.00249549597996,
+ f:0.7344723518301801,
+ penaltyvalue:24.26802314414978,
+ accuracy:0.6490384615384616
+modelName: MobileNetV1
+Result are saving to the CSV file ./results_SGD_l1/SGD_l1_mobilenetv1_chestX_10_edi_2.3_theta_10_lam_4.0e-04.csv
+epoch:1 time:51.19335889816284
+density:0.983554309982592
+F:32.90280185721328,
+ f:1.0275390642445261,
+ penaltyvalue:31.87526279296875,
+ accuracy:0.625
+modelName: MobileNetV1
+Result are saving to the CSV file ./results_SGD_l1/SGD_l1_mobilenetv1_chestX_10_edi_2.4_theta_10_lam_5.0e-04.csv
+epoch:1 time:50.32305073738098
+density:0.9774821417852212
+F:39.91239671395465,
+ f:0.6875747878377031,
+ penaltyvalue:39.224821926116945,
+ accuracy:0.7259615384615384
+modelName: MobileNetV1
+Result are saving to the CSV file ./results_SGD_l1/SGD_l1_mobilenetv1_chestX_10_edi_2.5_theta_10_lam_6.0e-04.csv
+modelName: MobileNetV1
+Result are saving to the CSV file ./results_SGD_l1/SGD_l1_mobilenetv1_chestX_10_edi_2.6_theta_10_lam_7.0e-04.csv
+
+
+PS:
+
+Read file <78435.err> for stderr output of this job.
+

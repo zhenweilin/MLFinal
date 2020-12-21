@@ -1,0 +1,10 @@
+2020-12-21 22:22:14,742 - log_mobilenetv1_SGD_l1 - INFO - <generator object Module.parameters at 0x2b3fb5179c50>
+2020-12-21 22:24:09,527 - log_mobilenetv1_SGD_l1 - INFO - <generator object Module.parameters at 0x2b8552568c50>
+2020-12-21 22:25:58,209 - log_mobilenetv1_SGD_l1 - INFO - <generator object Module.parameters at 0x2b840d6c6cd0>
+2020-12-21 22:27:52,726 - log_mobilenetv1_SGD_l1 - INFO - <generator object Module.parameters at 0x2afdae744cd0>
+2020-12-21 22:29:48,273 - log_mobilenetv1_SGD_l1 - INFO - <generator object Module.parameters at 0x2acd15043cd0>
+2020-12-21 09:37:24,899 - log_mobilenetv1_SGD_l1 - INFO - <generator object Module.parameters at 0x2aacbf9b4cd0>
+2020-12-21 09:39:15,925 - log_mobilenetv1_SGD_l1 - INFO - <generator object Module.parameters at 0x2b150dd71cd0>
+2020-12-21 09:41:04,425 - log_mobilenetv1_SGD_l1 - INFO - <generator object Module.parameters at 0x2b7d37cabcd0>
+2020-12-21 09:42:58,012 - log_mobilenetv1_SGD_l1 - INFO - <generator object Module.parameters at 0x2b5a226edcd0>
+2020-12-21 09:44:48,012 - log_mobilenetv1_SGD_l1 - INFO - <generator object Module.parameters at 0x2af54d95ecd0>

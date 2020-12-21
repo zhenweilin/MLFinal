@@ -201,7 +201,7 @@ def main():
         density = sum([torch.sum(w != 0).item() for w in weights])/num_features
         # density = optimize.num_non_zero/optimize.wei_num
         accuracy = check_accuracy(model,testloader)
-        print('epoch:{}'.format(optimize.step_count),'time:{}'.format(train_time))
+        print('epoch:{}'.format(epoch),'time:{}'.format(train_time))
         print('density:{}'.format(density))
         print("F:{},\n f:{},\n penaltyvalue:{},\n accuracy:{}".format(F,f,penaltyvalue,accuracy))
         writer.writerow({
