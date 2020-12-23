@@ -129,10 +129,10 @@ def main():
         'lambda_':lambda_,
         'epochSize':len(trainloader),
         'Np':100,
-        'Np2':100
+        'Np2':100,
     })
     if opt !='rda':
-        scheduler = StepLR(optimize, step_size = 60, gamma = 0.1)
+        scheduler = StepLR(optimize, step_size = 30, gamma = 0.1)
     os.makedirs('./results_{}'.format(opt),exist_ok=True)
     if a == 2:
         setting = '{}_{}_{}_{}_edi_{}_theta_{}_lam_{:.1e}'.format(opt,modelName,dataset_name,theta,edition,theta,lambda_)

@@ -12,6 +12,10 @@ class SGD_l1(Optimizer):
         defaults = dict(lr = lr,lambda_ = lambda_)
         super(SGD_l1,self).__init__(params,defaults)
 
+    def __getattr__(self,key):
+        print('SGD_l1 does not have {}'.format(key))
+        return None
+        
     @torch.no_grad()
     def step(self,closure = None):
         loss = None
