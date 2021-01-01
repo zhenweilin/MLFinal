@@ -30,7 +30,7 @@ class MobileNet(nn.Module):
     # haven't seen this grammer before, put cfg here and it will become self attribute automatically
     def __init__(self, num_classes=3):
         super(MobileNet, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels = 1, out_channels = 32, kernel_size=3, stride=35, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(in_channels = 1, out_channels = 32, kernel_size=3, stride=20, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(32)
         self.layers = self._make_layers(in_planes=32) #set the first layer's in_planes
         self.linear = nn.Linear(1024, num_classes)

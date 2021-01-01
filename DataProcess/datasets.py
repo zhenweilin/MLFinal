@@ -31,6 +31,7 @@ def get_mean_std(n,type):
 
 
 def Datasets(batch_size = 128):
+    test_batch_size = 234 + 390
     norm_train = get_mean_std(1,'train')
     norm_test = get_mean_std(1,'test')
     for key,value in norm_train.items():
@@ -41,7 +42,7 @@ def Datasets(batch_size = 128):
     normalize_train = transforms.Normalize(**norm_train)
     transform_train = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
-        transforms.CenterCrop((224*5,224*5)),
+        transforms.CenterCrop((192*5,192*5)),
         # transforms.RandomCrop(32,4),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
@@ -52,18 +53,19 @@ def Datasets(batch_size = 128):
     normalize_test = transforms.Normalize(**norm_test)
     transform_test = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
-        transforms.CenterCrop((224*5,224*5)),
+        transforms.CenterCrop((192*5,192*5)),
         transforms.ToTensor(),
         normalize_test
     ])
+    #192*5 32 160*2 25
     test_dataset = ImageFolder(os.path.join(DATA_DIR,'test'),transform_test)
     trainloader = DataLoader(
         train_dataset,batch_size=batch_size,shuffle=True,num_workers=4
     )
     testloader = DataLoader(
-        test_dataset,batch_size=batch_size,shuffle=False,num_workers=4
+        test_dataset,batch_size=test_batch_size,shuffle=False,num_workers=4
     )
-    num_classes = 2
+    num_classes = 3
     return trainloader, testloader, num_classes
 
 

@@ -18,8 +18,7 @@ from torch.autograd import Variable
 
 
 from model.mobilenetv1 import MobileNet
-from model.resnet import ResNet18
-# from optimizer import *
+from model.resnet import ResNet18, ResNet50,ResNet101,ResNet152
 import optimizer
 from utils import check_accuracy, compute_F, compute_value
 
@@ -29,7 +28,7 @@ def parseArgs():
         '--learning_rate','-lr',default=0.1,type = float
     )
     parser.add_argument(
-        '--model',choices=['mobilenetv1','resnet18'],type = str, required = True
+        '--model',choices=['mobilenetv1','resnet18','resnet50'],type = str, required = True
     )
     # parser.add_argument(
     #     '--dataset_name',choices = ['cifar10','fashion_mnist'],type = str,required = True
@@ -71,6 +70,15 @@ def selectModel(modelName):
     elif modelName == 'mobilenetv1':
         print('modelName: MobileNetV1')
         model = MobileNet()
+    elif modelName == 'resnet50':
+        print('modelName: ResNet50')
+        model = ResNet50()
+    elif modelName == 'resnet101':
+        print('modelName:ResNet101')
+        model = ResNet101()
+    elif modelName == 'resnet152':
+        print('modelName:ResNet152')
+        model = ResNet152()
     else:
         raise ValueError('Invalid model name:{}'.format(modelName))
     return model
@@ -187,7 +195,7 @@ def main():
             optimize.zero_grad()#zero grad before every iteration 
             f1.backward()
             optimize.step()
-        logger.info(model.parameters())
+        # logger.info(model.parameters())
 
         if opt != 'rda':
             scheduler.step()
@@ -215,14 +223,15 @@ def main():
             'stage':optimize.stage
         })
         csvfile.flush()
-        torch.save({
-            'epoch':epoch,
-            'accuracy':accuracy,
-            'lr':scheduler.get_last_lr()[0],
-            'model_state_dict':model.state_dict(),
-            'optimizer_state_dict':optimize.state_dict(),
-            'scheduler_state_dict':scheduler.state_dict(),
-        },os.path.join('checkpoints',setting+'.pt'))
+        if epoch >= 200:
+            torch.save({
+                'epoch':epoch,
+                'accuracy':accuracy,
+                'lr':scheduler.get_last_lr()[0],
+                'model_state_dict':model.state_dict(),
+                'optimizer_state_dict':optimize.state_dict(),
+                'scheduler_state_dict':scheduler.state_dict(),
+            },os.path.join('checkpoints',setting+'.pt'))
         epoch += 1
  
 
