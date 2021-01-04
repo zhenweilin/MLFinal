@@ -68,7 +68,22 @@ def Datasets(batch_size = 128):
     num_classes = 3
     return trainloader, testloader, num_classes
 
-
+def Datasets_val(batch_size = 8+8+9):
+    norm_test = get_mean_std(1,'test')
+    for key,value in norm_test.items():
+        norm_test = value
+    normalize_test = transforms.Normalize(**norm_test)
+    transform_val = transforms.Compose([
+        transforms.Grayscale(num_output_channels=1),
+        transforms.CenterCrop((192*5,192*5)),
+        transforms.ToTensor(),
+        normalize_test
+    ])
+    val_dataset = ImageFolder(os.path.join(DATA_DIR,'val'),transform_val)
+    valloader = DataLoader(
+        val_dataset,batch_size=batch_size,shuffle=True,num_workers=4
+    )
+    return valloader
 # def show(x):
 #     '''
 #     show how to transform the image in first layer

@@ -1,17 +1,17 @@
 import torch
 import numpy as np
 from utils import check_accuracy
-from DataProcess import Datasets
+from DataProcess import Datasets,Datasets_val
 from run import selectModel
 batch_size = 128
 
 if torch.cuda.is_available():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 trainloader, testloader, num_classes = Datasets(batch_size)
-
+valloader = Datasets_val()
 
 class multi_adaboost():
-    def __init__(self,K,M):
+    def __init__(self,K,M,modelset):
         '''
         K: category number
         M: training circle number, epoch
@@ -19,6 +19,8 @@ class multi_adaboost():
         '''
         self.K = K
         self.M = M
+        self.weight = [0.13,0.18,0.68]
+        self.modelset = modelset
         pass
 
     def caculate_e(self,err,w):
@@ -39,7 +41,6 @@ class multi_adaboost():
         return w
 
     def SAMME(self,modelset):
-        self.modelset = modelset
         weight = [1/len(modelset)]*len(modelset)
         for m in range(self.M):#epoch
             for i,model in enumerate(modelset):
@@ -56,7 +57,7 @@ class multi_adaboost():
             print(self.weight)
         return self.weight
     
-    def test(self):
+    def test(self,testloader):
         correct = 0
         total = 0
         with torch.no_grad():
@@ -79,7 +80,7 @@ class multi_adaboost():
         accuracy = correct / total
         print('accuracy is :{}'.format(accuracy))
         return accuracy
-    
+
 
 
 if __name__ == "__main__":
@@ -96,9 +97,10 @@ if __name__ == "__main__":
     model3.load_state_dict(checkpoint3['model_state_dict'])
     # model4.load_state_dict(checkpoint4['model_state_dict'])
     modelset = [model1,model2,model3]
-    adaboost = multi_adaboost(3,5)
-    adaboost.SAMME(modelset)
-    adaboost.test()
+    adaboost = multi_adaboost(3,5,modelset)
+    # adaboost.SAMME(modelset)
+    adaboost.test(testloader)
+    adaboost.test(valloader)
 
 
     
