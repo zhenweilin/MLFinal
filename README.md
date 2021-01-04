@@ -41,7 +41,8 @@
 # Requirements
  - torch:1.4.0 or higher
  - torchvision: 0.5.0 or higher
-
+# Data Preprocess
+If you download data from [kaggle](https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia), the first step you need to do is split data. You can run data_split.py
 # Running Code
 ## Run some examples
 The scripts of running all non-convex experiments are provided in **.sh** file. 
