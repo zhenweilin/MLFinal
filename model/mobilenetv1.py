@@ -46,9 +46,12 @@ class MobileNet(nn.Module):
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
+        # print(out.shape)
         out = self.layers(out)
+        # print(out.shape)
         out = F.avg_pool2d(out, 2)
         out = out.view(out.size(0), -1)
+        # print(out.shape)
         out = self.linear(out)
         return out
 

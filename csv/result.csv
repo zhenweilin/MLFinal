@@ -1,0 +1,5 @@
+Model,Datasets,Algorithm,density,density_std,accuracy,accuracy_std
+mobile,chestX,SGD_l1,0.5329761065089942,nan,0.7676282051282052,nan
+resnet18,chestX,SGD_l1,0.9351966103735296,nan,0.7355769230769231,nan
+resnet50,chestX,SGD_l1,0.4226794153180913,nan,0.7387820512820513,nan
+mobile,chestX,SGD_mcp,0.5062963338135542,nan,0.7403846153846154,nan

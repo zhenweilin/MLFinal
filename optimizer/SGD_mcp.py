@@ -15,6 +15,9 @@ class SGD_mcp(Optimizer):
             raise ValueError('Invalid value a:{}'.format(a))
         defaults = dict(lr = lr,lambda_ = lambda_,theta = theta,a = a)
         super(SGD_mcp,self).__init__(params,defaults)
+    def __getattr__(self,key):
+        print('SGD_mcp does not have {}'.format(key))
+        return None
 
     @torch.no_grad()
     def step(self,closure = None):

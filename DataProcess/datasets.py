@@ -43,7 +43,6 @@ def Datasets(batch_size = 128):
     transform_train = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
         transforms.CenterCrop((192*5,192*5)),
-        # transforms.RandomCrop(32,4),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
         normalize_train
@@ -58,6 +57,7 @@ def Datasets(batch_size = 128):
         normalize_test
     ])
     #192*5 32 160*2 25
+    #CenterCrop -> Resize
     test_dataset = ImageFolder(os.path.join(DATA_DIR,'test'),transform_test)
     trainloader = DataLoader(
         train_dataset,batch_size=batch_size,shuffle=True,num_workers=4

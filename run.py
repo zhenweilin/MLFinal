@@ -223,7 +223,7 @@ def main():
             'stage':optimize.stage
         })
         csvfile.flush()
-        if epoch >= 200:
+        if epoch >= max_epoch:
             torch.save({
                 'epoch':epoch,
                 'accuracy':accuracy,
@@ -232,6 +232,7 @@ def main():
                 'optimizer_state_dict':optimize.state_dict(),
                 'scheduler_state_dict':scheduler.state_dict(),
             },os.path.join('checkpoints',setting+'.pt'))
+            print('save model successfully')
         epoch += 1
  
 

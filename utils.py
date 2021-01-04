@@ -140,3 +140,55 @@ def get_logger(name, log_dir='./log'):
 
     return logger
 
+
+
+class AverageMeter(object):
+    def __init__(self,name,fmt = ':f'):
+        self.name = name
+        self.fmt = fmt
+        self.reset()
+        self.store = []
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
+        self.store = []
+    def update(self,val,n = 1):
+        self.val = val
+        self.sum += val*n
+        self.count += n
+        self.avg = self.sum / self.count
+
+        # 类的一些静态函数，类函数，普通函数，全局变量以及一些内置的属性都是放在__dict__里面了，
+        # 存储了一些self.**的东西
+        # __str__对于使用没有什么用，但是方便我们直接对这个东西进行打印返回一些东西
+        # 利用fmt, 使其在打印的时候能够标准化输出
+        # 对其使用　str 命令时也是输出这个命令
+    def save(self,val):
+        self.store.append(val)
+
+    def __str__(self):
+        fmtstr = '{name}{val' + self.fmt + '}({avg' + self.fmt + '})'
+        return fmtstr.format(**self.__dict__)
+
+
+class ProgressMeter(object):
+    def __init__(self,num_batches, meters, prefix = ""):
+        self.batch_fmtstr = self._get_batch_fmtstr(num_batches)
+        self.meters = meters
+        self.prefix = prefix
+    
+    def display(self,batch):
+        entries = [self.prefix + self.batch_fmtstr.format(batch)]
+        entries += [str(meter) for meter in self.meters]
+        print('\t'.join(entries))
+
+    def _get_batch_fmtstr(self,num_batches):
+        num_digits = len(str(num_batches//1))
+        fmt = '{:' + str(num_digits) + 'd}'
+        return '[' + fmt + '/' + fmt.format(num_batches) + ']'
+        # 前面这个fmt 里面有一个可以填的位置，用于填第几个batch[len(test_loader)d　表示
+        # 的意思应该是00001 这样进行表示]
+        # 后面fmt 里面填的是batch中的数量
+

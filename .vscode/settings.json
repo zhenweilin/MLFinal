@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "/nfsshare/home/linzhenwei/.conda/envs/tc/bin/python"
+    "python.pythonPath": "/nfsshare/home/linzhenwei/.conda/envs/tc/bin/python",
+    "jupyter.jupyterServerType": "local"
 }
